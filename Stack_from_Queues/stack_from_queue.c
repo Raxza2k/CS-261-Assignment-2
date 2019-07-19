@@ -163,7 +163,7 @@ TYPE listQueueRemoveFront(struct Queue* queue)
 int listQueueIsEmpty(struct Queue* queue) 
 {
 	assert(queue != NULL);
-	if(queue->head->next->next == NULL) return 1;
+	if(queue->head->next == NULL) return 1;
 	return 0;
 }
 
@@ -203,6 +203,7 @@ struct Stack* listStackFromQueuesCreate()
 	 struct Stack* stack = (struct Stack *)malloc(sizeof(struct Stack));
 	 stack->q1 = listQueueCreate();
 	 stack->q2 = listQueueCreate();
+	 return stack;
 }
 
 /**
@@ -277,7 +278,7 @@ void listStackPush(struct Stack* stack, TYPE value)
 {
 	assert(stack != NULL);
     listQueueAddBack(stack->q2, value);
-    while(listQueueIsEmpty(stack->q1))
+    while(!listQueueIsEmpty(stack->q1))
     {
         listQueueAddBack(stack->q2, listQueueRemoveFront(stack->q1));
     }
