@@ -58,6 +58,7 @@ static void init(struct CircularList* deque)
 	assert(deque != NULL);
 	deque->sentinel = (struct Link*)malloc(sizeof(struct Link));
 	assert(deque->sentinel != 0);
+	deque->sentinel->value = 0;
 	deque->sentinel->next = deque->sentinel;
 	deque->sentinel->prev = deque->sentinel;
 	deque->size = 0;
@@ -79,7 +80,8 @@ static struct Link* createLink(TYPE value)
 	newLink->value = value;
 	newLink->next = NULL;
 	newLink->prev = NULL;
-	/* FIXME: You will write this function */ // done?
+	return newLink;
+	/* FIXME: You will write this function */
 }
 
 /**
@@ -95,13 +97,36 @@ static struct Link* createLink(TYPE value)
  */
 static void addLinkAfter(struct CircularList* deque, struct Link* link, TYPE value)
 {
-	struct Link* newLink = (struct Link*)malloc(sizeof(struct Link));
+	//struct Link* newLink = (struct Link*)malloc(sizeof(struct Link));
+	struct Link *newLink = createLink(value);
 	assert(newLink != 0);
-	newLink->value = value;
+	if(deque->sentinel->next == deque->sentinel){
+		deque->sentinel->next = newLink;
+		deque->sentinel->prev = newLink;
+		newLink->next = deque->sentinel;
+		newLink->prev = deque->sentinel;
+	}
+	else if(link == deque->sentinel){
+		newLink->next = link->next;
+		link->next = newLink;
+		newLink->next->prev = newLink;
+		newLink->prev = link;
+	}
+	else if(link == deque->sentinel->prev){
+		newLink->prev = link;
+		newLink->next = deque->sentinel;
+		link->next = newLink;
+		deque->sentinel->prev = newLink;
+	}
+	else{
+		printf("Invalid link input\n");
+	}
+	/*
 	newLink->next = link->next;
 	newLink->prev = link;
 	newLink->next->prev = newLink;
 	link->next = newLink;
+	*/
 	deque->size += 1;
 	/* FIXME: You will write this function */ //done?
 }
@@ -117,11 +142,11 @@ static void addLinkAfter(struct CircularList* deque, struct Link* link, TYPE val
  */
 static void removeLink(struct CircularList* deque, struct Link* link)
 {
-	struct Link* temp = link; //creates temp pointer to hold link memory address
-	link->prev->next = link->next; //takes next pointer from previous link and points it to link in front of link to be removed
-	link->next->prev = link->prev; //takes prev pointer from next link and points it to link behind link to be removed
-	free(temp); //frees temp pointer and link in list
-	deque->size -= 1; //decrements linked list size
+	struct Link* temp = link;	 		//creates temp pointer to hold link memory address
+	link->prev->next = link->next; 		//takes next pointer from previous link and points it to link in front of link to be removed
+	link->next->prev = link->prev; 		//takes prev pointer from next link and points it to link behind link to be removed
+	free(temp); 						//frees temp pointer and link in list
+	deque->size -= 1;					 //decrements linked list size
 
 	/* FIXME: You will write this function */ //done?
 }
@@ -150,7 +175,7 @@ struct CircularList* circularListCreate()
 void circularListDestroy(struct CircularList* deque)
 {
 	assert(deque != NULL);
-	while(deque->sentinel->next != deque->sentinel){
+	while(deque->sentinel->next != deque->sentinel->prev){
 		struct Link* temp = deque->sentinel->next;
 		deque->sentinel->next = deque->sentinel->next->next;
 		free(temp);
@@ -174,14 +199,8 @@ void circularListDestroy(struct CircularList* deque)
  */
 void circularListAddFront(struct CircularList* deque, TYPE value)
 {
-	//struct Link* newLink = (struct Link*)malloc(sizeof(struct Link));
-	//assert(newLink != 0);
-	//newLink->value = value;
-	//newLink->next = deque->sentinel->next;
-	//newLink->prev = deque->sentinel;
 	assert(deque != NULL);
 	addLinkAfter(deque, deque->sentinel, value);
-	/* FIXME: You will write this function */
 }
 
 /**
@@ -194,11 +213,8 @@ void circularListAddFront(struct CircularList* deque, TYPE value)
  */
 void circularListAddBack(struct CircularList* deque, TYPE value)
 {
-	//struct Link* newLink = (struct Link*)malloc(sizeof(struct Link));
-	//assert(newLink != 0);
 	assert(deque != NULL);
 	addLinkAfter(deque, deque->sentinel->prev, value);
-	/* FIXME: You will write this function */ //done?
 }
 
 /**
@@ -211,8 +227,7 @@ void circularListAddBack(struct CircularList* deque, TYPE value)
  */
 TYPE circularListFront(struct CircularList* deque)
 {
-	return(deque->sentinel->next->value);
-	/* FIXME: You will write this function */ //done?
+	return (deque->sentinel->next->value);
 }
 
 /**
@@ -225,7 +240,7 @@ TYPE circularListFront(struct CircularList* deque)
  */
 TYPE circularListBack(struct CircularList* deque)
 {
-	return(deque->sentinel->prev->value);
+	return (deque->sentinel->prev->value);
 	/* FIXME: You will write this function */ //done?
 }
 
@@ -273,8 +288,6 @@ int circularListIsEmpty(struct CircularList* deque)
 	if(deque->size == 0)
 		return 1;
 	return 0;
-	/* FIXME: You will write this function */ // done?
-
 }
 
 /**
@@ -288,11 +301,10 @@ int circularListIsEmpty(struct CircularList* deque)
 void circularListPrint(struct CircularList* deque)
 {
 	struct Link* temp = deque->sentinel->next;
-	do{
-		printf("%d\n", temp->value);
+	while(temp != deque->sentinel){
+		printf("%g\n", temp->value);
 		temp = temp->next;
-	}while(temp->next != deque->sentinel->next);
-	/* FIXME: You will write this function */ //done?
+	}
 }
 
 /**
@@ -315,13 +327,15 @@ void circularListReverse(struct CircularList* deque)
 	struct Link* current = deque->sentinel;
 	struct Link* tmp = current->next;
 
-	int i;
-	for(i = 0; i < deque->size; i++){
+	current->next = current->prev;
+	current->prev = tmp;
+	tmp = current;
+	current = current->next;
+
+	while(current != deque->sentinel){
 		current->next = current->prev;
 		current->prev = tmp;
+		tmp = current;
 		current = current->next;
-		tmp = current->next;
-		i++;
 	}
-	/* FIXME: You will write this function */ //done?
 }
