@@ -1,7 +1,7 @@
 /***********************************************************
-* Author: 
-* Email: 
-* Date Created: 
+* Author: Cooper Smith, Anthony Minniti, Gabe Schafman
+* Email: smithcoo@oregonstate.edu, minnitan@oregonstate.edu, schafmag@oregonstate.edu
+* Date Created: July 19th, 2019
 * Filename: stack_from_queue.c
 *
 * Overview:

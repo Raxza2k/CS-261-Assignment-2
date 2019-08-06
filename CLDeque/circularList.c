@@ -1,6 +1,6 @@
 /***********************************************************
 * Author: Cooper Smith, Anthony Minniti, Gabe Schafman
-* Email: smithcoo@oregonstate.edu, minnitan@oregonstate.edu
+* Email: smithcoo@oregonstate.edu, minnitan@oregonstate.edu, schafmag@oregonstate.edu
 * Date Created: July 10th, 2019
 * Filename: circularList.c
 *
